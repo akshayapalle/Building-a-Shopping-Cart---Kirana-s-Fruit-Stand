@@ -14,13 +14,3 @@ JavaScript
 Folder Structure
 bash
 Copy code
-project-folder/
-├── index.html         # Main HTML file
-├── assets/
-│   ├── script.js      # Cart functionality
-│   ├── styles.css     # Application styling
-├── images/
-│   ├── cherry.jpg     # Product images
-│   ├── orange.jpg
-│   └── strawberry.jpg
-└── README.md          # Project documentation
