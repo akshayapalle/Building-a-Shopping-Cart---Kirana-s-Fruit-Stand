@@ -82,19 +82,23 @@ function cartTotal() {
 
 // Handle payment
 function pay(amount) {
-  const total = cartTotal(); // Calculate current cart total
-  totalPaid += amount; // Add payment to the total paid so far
+  const total = cartTotal(); // Calculate the current cart total
   
-  // Calculate remaining balance (positive = overpayment, negative = amount still owed)
-  remainingBalance = parseFloat((totalPaid - total).toFixed(2));
+  // Deduct the payment amount from the total
+  remainingBalance += amount; // Increment remainingBalance by the amount paid
+
+  let amountOwed = total - remainingBalance;
+  let change = 0;
   
-  if (remainingBalance >= 0) {
-    // Payment is sufficient or overpaid
-    cart = []; // Clear cart only when payment is complete
-    totalPaid = 0; // Reset total paid to prepare for future payments
+  if (remainingBalance >= total) {
+    change = parseFloat((remainingBalance - total).toFixed(2)); // Calculate change
+    remainingBalance = 0; // Reset remaining balance after overpayment
+    return change;
+  } else {
+    // If still owes money, keep remainingBalance negative
+    remainingBalance = -amountOwed;
+    return -remainingBalance; // Returning the negative value of owed amount
   }
-  
-  return remainingBalance; // Always return the remaining balance
 }
 
 // Clear cart
@@ -125,18 +129,47 @@ function switchCurrency(newCurrency) {
   });
 }
 
-// Example usage (Commented out to avoid affecting test results)
-// addProductToCart(1); // Add Cherry
-// addProductToCart(2); // Add Orange
-// increaseQuantity(1); // Increase Cherry quantity
-// decreaseQuantity(2); // Decrease Orange quantity
+// Example usage for testing
+addProductToCart(1); // Add Cherry ($2.5)
+addProductToCart(2); // Add Orange ($1.5)
 
-// cartTotal(); // Total cost of items in the cart
-// pay(10);     // Handle payment with $10
-// clearCart();
-// switchCurrency("EUR");
+// Log initial cart total
+console.log("Cart Total:", cartTotal()); // Expected: 4.0
 
-// Export for testing purposes
+// Partial payment example (paying $8 for a $10 bill)
+let remainingAfterPayment = pay(8); // Paying $8
+console.log(`Cash Received: $8`);
+console.log(`Remaining Balance: -$${remainingAfterPayment.toFixed(2)}`); // Negative value for remaining balance
+console.log("Please pay additional amount.");
+
+// Overpayment example (paying $10 for a $9 bill)
+remainingAfterPayment = pay(10); // Paying $10
+console.log(`Cash Received: $10`);
+console.log(`Remaining Balance: $${remainingAfterPayment.toFixed(2)}`); // Positive value for remaining balance
+console.log("Change to be returned.");
+
+// Cart after full payment
+console.log("Cart Total after clearing:", cartTotal()); // Expected: 0.0
+
+// Add products again for further tests
+addProductToCart(3); // Add Strawberry ($3.0)
+console.log("Cart Total with Strawberry:", cartTotal()); // Expected: 3.0
+
+// Switch currency and verify remainingBalance
+switchCurrency("EUR");
+console.log("Remaining Balance in EUR:", remainingBalance);
+console.log("Cart in EUR:", products);
+
+// Display remaining balance with user-friendly message
+if (remainingBalance < 0) {
+  console.log(`You still owe: -${Math.abs(remainingBalance).toFixed(2)} ${currentCurrency}`);
+} else if (remainingBalance > 0) {
+  console.log(`Change: ${remainingBalance.toFixed(2)} ${currentCurrency}`);
+} else {
+  console.log("Payment is complete.");
+}
+
+// Export Updated Module
 module.exports = {
   products,
   cart,
@@ -149,3 +182,5 @@ module.exports = {
   clearCart,
   switchCurrency,
 };
+
+
