@@ -82,19 +82,19 @@ function cartTotal() {
 
 // Handle payment
 function pay(amount) {
-  const total = cartTotal();
-  totalPaid += amount; // Track total paid
+  const total = cartTotal(); // Calculate current cart total
+  totalPaid += amount; // Add payment to the total paid so far
   
-  // Calculate the remaining balance
+  // Calculate remaining balance (positive = overpayment, negative = amount still owed)
   remainingBalance = parseFloat((totalPaid - total).toFixed(2));
-
+  
   if (remainingBalance >= 0) {
-    cart = []; // Clear the cart when payment is complete
-    totalPaid = 0; // Reset total paid
-    return remainingBalance; // Return change
-  } else {
-    return remainingBalance; // Return negative balance indicating amount still owed
+    // Payment is sufficient or overpaid
+    cart = []; // Clear cart only when payment is complete
+    totalPaid = 0; // Reset total paid to prepare for future payments
   }
+  
+  return remainingBalance; // Always return the remaining balance
 }
 
 // Clear cart
@@ -149,6 +149,3 @@ module.exports = {
   clearCart,
   switchCurrency,
 };
- 
-  
-  
