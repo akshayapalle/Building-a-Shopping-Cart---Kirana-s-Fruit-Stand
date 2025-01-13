@@ -28,12 +28,20 @@ let cart = [];
 let totalPaid = 0; // Track total payments
 let remainingBalance = 0; // Global variable to track remaining balance
 
-// Helper function to get product by ID
+/**
+ * @desc Helper function to get a product by its ID
+ * @param {number} productId - The ID of the product to find
+ * @param {Array} productList - The list of products to search in
+ * @return {Object|null} - Returns the product object if found, else null
+ */
 function getProductById(productId, productList) {
   return productList.find((product) => product.productId === productId);
 }
 
-// Add product to cart
+/**
+ * @desc Adds a product to the cart or increases its quantity if already in the cart
+ * @param {number} productId - The ID of the product to add
+ */
 function addProductToCart(productId) {
   const product = getProductById(productId, products);
   if (!product) return;
@@ -46,7 +54,10 @@ function addProductToCart(productId) {
   }
 }
 
-// Increase product quantity in cart
+/**
+ * @desc Increases the quantity of a product in the cart
+ * @param {number} productId - The ID of the product to increase quantity
+ */
 function increaseQuantity(productId) {
   const cartItem = getProductById(productId, cart);
   if (cartItem) {
@@ -54,7 +65,10 @@ function increaseQuantity(productId) {
   }
 }
 
-// Decrease product quantity in cart
+/**
+ * @desc Decreases the quantity of a product in the cart
+ * @param {number} productId - The ID of the product to decrease quantity
+ */
 function decreaseQuantity(productId) {
   const cartItem = getProductById(productId, cart);
   if (cartItem) {
@@ -65,7 +79,10 @@ function decreaseQuantity(productId) {
   }
 }
 
-// Remove product from cart
+/**
+ * @desc Removes a product from the cart
+ * @param {number} productId - The ID of the product to remove
+ */
 function removeProductFromCart(productId) {
   const productIndex = cart.findIndex((item) => item.productId === productId);
   if (productIndex > -1) {
@@ -73,40 +90,49 @@ function removeProductFromCart(productId) {
   }
 }
 
-// Calculate total cost of cart
+/**
+ * @desc Calculates the total cost of all products in the cart
+ * @return {number} - The total cost of the cart
+ */
 function cartTotal() {
   return parseFloat(
     cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
   );
 }
 
-// Handle payment
+/**
+ * @desc Handles payments, tracks totalPaid and calculates remaining balance
+ * @param {number} amount - The amount being paid
+ * @return {number} - Returns positive if change is owed, or negative if balance remains
+ */
 function pay(amount) {
-  const total = cartTotal(); // Calculate the current cart total
-  
-  // Deduct the payment amount from the total
-  remainingBalance += amount; // Increment remainingBalance by the amount paid
+  totalPaid += amount; // Update totalPaid with the current payment
+  const total = cartTotal(); // Get the current total of the cart
 
-  let amountOwed = total - remainingBalance;
-  let change = 0;
-  
-  if (remainingBalance >= total) {
-    change = parseFloat((remainingBalance - total).toFixed(2)); // Calculate change
-    remainingBalance = 0; // Reset remaining balance after overpayment
-    return change;
+  let change = totalPaid - total;
+
+  if (change >= 0) {
+    clearCart(); // Clear the cart if payment is complete
+    remainingBalance = 0;
+    totalPaid = 0; // Reset payments after change is given
+    return parseFloat(change.toFixed(2)); // Return the change
   } else {
-    // If still owes money, keep remainingBalance negative
-    remainingBalance = -amountOwed;
-    return -remainingBalance; // Returning the negative value of owed amount
+    remainingBalance = parseFloat((-change).toFixed(2)); // Set remaining balance as positive
+    return -remainingBalance; // Return the remaining amount as negative
   }
 }
 
-// Clear cart
+/**
+ * @desc Clears the cart
+ */
 function clearCart() {
   cart = [];
 }
 
-// Switch currency
+/**
+ * @desc Switches product and cart prices to a new currency
+ * @param {string} newCurrency - The target currency (USD, EUR, YEN)
+ */
 const currencyRates = {
   USD: 1,
   EUR: 0.85,
@@ -130,46 +156,20 @@ function switchCurrency(newCurrency) {
 }
 
 // Example usage for testing
-addProductToCart(1); // Add Cherry ($2.5)
-addProductToCart(2); // Add Orange ($1.5)
+addProductToCart(1); // Add Cherry
+addProductToCart(2); // Add Orange
 
-// Log initial cart total
+// Initial Cart Total
 console.log("Cart Total:", cartTotal()); // Expected: 4.0
 
-// Partial payment example (paying $8 for a $10 bill)
-let remainingAfterPayment = pay(8); // Paying $8
-console.log(`Cash Received: $8`);
-console.log(`Remaining Balance: -$${remainingAfterPayment.toFixed(2)}`); // Negative value for remaining balance
-console.log("Please pay additional amount.");
+// Partial payment example
+console.log("Remaining Balance:", pay(2)); // Paying $2, Expected: -2.0
+console.log("Remaining Balance:", pay(3)); // Paying $3, Expected: 1.0 (change)
 
-// Overpayment example (paying $10 for a $9 bill)
-remainingAfterPayment = pay(10); // Paying $10
-console.log(`Cash Received: $10`);
-console.log(`Remaining Balance: $${remainingAfterPayment.toFixed(2)}`); // Positive value for remaining balance
-console.log("Change to be returned.");
-
-// Cart after full payment
-console.log("Cart Total after clearing:", cartTotal()); // Expected: 0.0
-
-// Add products again for further tests
-addProductToCart(3); // Add Strawberry ($3.0)
-console.log("Cart Total with Strawberry:", cartTotal()); // Expected: 3.0
-
-// Switch currency and verify remainingBalance
+// Switch currency
 switchCurrency("EUR");
-console.log("Remaining Balance in EUR:", remainingBalance);
-console.log("Cart in EUR:", products);
+console.log("Cart in EUR:", cart);
 
-// Display remaining balance with user-friendly message
-if (remainingBalance < 0) {
-  console.log(`You still owe: -${Math.abs(remainingBalance).toFixed(2)} ${currentCurrency}`);
-} else if (remainingBalance > 0) {
-  console.log(`Change: ${remainingBalance.toFixed(2)} ${currentCurrency}`);
-} else {
-  console.log("Payment is complete.");
-}
-
-// Export Updated Module
 module.exports = {
   products,
   cart,
@@ -182,5 +182,3 @@ module.exports = {
   clearCart,
   switchCurrency,
 };
-
-
