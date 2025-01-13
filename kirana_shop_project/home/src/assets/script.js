@@ -26,6 +26,7 @@ const products = [
 // Cart Array
 let cart = [];
 let totalPaid = 0; // Track total payments
+let remainingBalance = 0; // Global variable to track remaining balance
 
 // Helper function to get product by ID
 function getProductById(productId, productList) {
@@ -83,14 +84,16 @@ function cartTotal() {
 function pay(amount) {
   const total = cartTotal();
   totalPaid += amount; // Track total paid
-  const balance = parseFloat((totalPaid - total).toFixed(2));
+  
+  // Calculate the remaining balance
+  remainingBalance = parseFloat((totalPaid - total).toFixed(2));
 
-  if (balance >= 0) {
+  if (remainingBalance >= 0) {
     cart = []; // Clear the cart when payment is complete
     totalPaid = 0; // Reset total paid
-    return balance; // Return change
+    return remainingBalance; // Return change
   } else {
-    return balance; // Return negative balance indicating amount still owed
+    return remainingBalance; // Return negative balance indicating amount still owed
   }
 }
 
